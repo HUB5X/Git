@@ -1,0 +1,45 @@
+import re
+import aiohttp
+
+# Regex Pattern
+card_pattern = re.compile(
+    r'(\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{3,4}\b)[|:/\s]?\b(\d{1,2})[|:/\s]?(\d{2,4})\b[|:/\s]?(\d{3,4})?',
+    re.IGNORECASE
+)
+
+# Helper: Country Code to Emoji (US -> 🇺🇸)
+def get_flag_emoji(country_code):
+    if not country_code or len(country_code) != 2:
+        return '🏳️'
+    return "".join([chr(0x1F1E6 + ord(c.upper()) - ord('A')) for c in country_code])
+
+async def get_bin_details(session, card_number):
+    bin_number = card_number[:6]
+    try:
+        async with session.get(f'https://bins.antipublic.cc/bins/{bin_number}', timeout=5) as response:
+            if response.status == 200:
+                data = await response.json()
+                if 'bin' in data:
+                    # API က country_code ("US") ကိုယူပြီး အလံပြောင်းမည်
+                    code = data.get('country_code', '')
+                    flag = get_flag_emoji(code)
+                    
+                    return {
+                        "country": data.get('country_name', 'Unknown'),
+                        "country_flag": flag, # Auto Generated Flag
+                        "bank": data.get('bank', 'Unknown'),
+                        "type": data.get('type', 'Unknown'),
+                        "level": data.get('level', 'Unknown'),
+                        "brand": data.get('brand', 'Unknown')
+                    }
+    except:
+        pass
+    return {
+        "country": "Unknown", "country_flag": "🏳️", "bank": "Unknown", 
+        "type": "Unknown", "level": "Unknown", "brand": "Unknown"
+    }
+
+def parse_expiry_year(year_str):
+    if len(year_str) == 2:
+        return int("20" + year_str)
+    return int(year_str)
