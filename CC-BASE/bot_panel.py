@@ -71,7 +71,7 @@ def send_welcome(message):
     if message.from_user.id != ADMIN_ID: return
     bot.send_message(
         message.chat.id, 
-        "👋 **Welcome to Pro Scraper V3.5 (Git Edition)**\n\nMain Menu ကို အောက်က Keyboard မှာ ရွေးချယ်နိုင်ပါပြီ:", 
+        "👋 **Welcome to Pro Scraper V3.6 (Git Edition)**\n\nMain Menu ကို အောက်က Keyboard မှာ ရွေးချယ်နိုင်ပါပြီ:", 
         reply_markup=get_main_menu_keyboard(), 
         parse_mode="Markdown"
     )
